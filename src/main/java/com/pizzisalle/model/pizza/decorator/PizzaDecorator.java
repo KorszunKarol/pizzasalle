@@ -1,27 +1,25 @@
 package com.pizzisalle.model.pizza.decorator;
 
-import com.pizzisalle.model.pizza.Pizza;
+import com.pizzisalle.model.pizza.base.Pizza;
 import java.util.List;
 
 /**
- * PATTERN: Decorator
- * Abstract base class for all pizza decorators that add extra ingredients or modify existing ones.
- * This class implements the Decorator pattern by wrapping a Pizza object and delegating all method
- * calls to it while allowing subclasses to modify the behavior.
+ * PATTERN: Decorator - This abstract class serves as the base decorator for all pizza modifications.
+ * It implements the same interface as the component (Pizza) and has a reference to an instance
+ * of the component. This allows for dynamic addition of new behaviors to pizzas at runtime.
  */
 public abstract class PizzaDecorator extends Pizza {
-    
     protected final Pizza pizza;
 
-    /**
-     * Constructor for PizzaDecorator
-     * @param pizza The pizza to be decorated
-     */
     protected PizzaDecorator(Pizza pizza) {
-        if (pizza == null) {
-            throw new IllegalArgumentException("Pizza cannot be null");
-        }
+        super(pizza.getName(), pizza.getBasePrice(), pizza.isExclusive());
         this.pizza = pizza;
+        this.ingredients.addAll(pizza.getIngredients());
+    }
+
+    @Override
+    public double calculatePrice() {
+        return pizza.calculatePrice();
     }
 
     @Override
@@ -30,22 +28,17 @@ public abstract class PizzaDecorator extends Pizza {
     }
 
     @Override
-    public double getPrice() {
-        return pizza.getPrice();
-    }
-
-    @Override
     public List<String> getIngredients() {
         return pizza.getIngredients();
     }
 
     @Override
-    public boolean isExclusive() {
-        return pizza.isExclusive();
+    public double getBasePrice() {
+        return pizza.getBasePrice();
     }
 
     @Override
-    public String getDelegation() {
-        return pizza.getDelegation();
+    public boolean isExclusive() {
+        return pizza.isExclusive();
     }
 }

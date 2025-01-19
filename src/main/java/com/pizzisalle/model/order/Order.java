@@ -25,6 +25,7 @@ public class Order {
         this.customer = customer;
         this.pizzas = new ArrayList<>();
         this.beverages = new ArrayList<>();
+        this.crustType = CrustType.ORIGINAL; // Default crust type
     }
 
     public void addPizza(Pizza pizza) {
@@ -74,12 +75,19 @@ public class Order {
     public double calculateTotalPrice() {
         try {
             double total = 0;
+
+            // Calculate pizza prices
             for (Pizza pizza : pizzas) {
                 total += pizza.calculatePrice();
+                // Add crust type extra cost for each pizza
+                total += crustType.getExtraCost();
             }
+
+            // Add beverage prices
             for (Beverage beverage : beverages) {
                 total += beverage.getPrice();
             }
+
             this.totalPrice = total;
             return total;
         } catch (Exception e) {

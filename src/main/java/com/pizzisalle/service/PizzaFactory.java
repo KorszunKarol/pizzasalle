@@ -1,21 +1,28 @@
 package com.pizzisalle.service;
 
-import com.pizzisalle.model.*;
 import com.pizzisalle.exception.InvalidPizzaException;
+import com.pizzisalle.model.pizza.base.Pizza;
+import com.pizzisalle.model.pizza.types.*;
+import com.pizzisalle.constants.Delegations;
 
+/**
+ * PATTERN: Factory Method - This class implements the Factory pattern to create different types
+ * of pizzas without exposing the instantiation logic to the client. It also ensures that
+ * location-specific pizzas are only created for their respective delegations.
+ */
 public class PizzaFactory {
     // PATTERN: Singleton - Ensures only one instance of PizzaFactory exists
     private static PizzaFactory instance;
-    
+
     private PizzaFactory() {}
-    
+
     public static PizzaFactory getInstance() {
         if (instance == null) {
             instance = new PizzaFactory();
         }
         return instance;
     }
-    
+
     // PATTERN: Factory Method - Creates different pizza objects based on type and location
     public Pizza createPizza(String type, String location) throws InvalidPizzaException {
         if (type == null || type.trim().isEmpty()) {
@@ -24,39 +31,39 @@ public class PizzaFactory {
         if (location == null || location.trim().isEmpty()) {
             throw new InvalidPizzaException("Location cannot be null or empty");
         }
-        
-        type = type.toLowerCase();
-        location = location.toLowerCase();
-        
-        // Validate exclusive pizzas
+
+        // Validate location-specific pizzas
         validateExclusivePizza(type, location);
-        
-        switch (type) {
+
+        // Create the requested pizza
+        switch (type.toLowerCase()) {
             case "margherita":
-                return new Margherita();
+                return new MargheritaPizza();
             case "hawaiian":
-                return new Hawaiian();
-            case "vegetarian":
-                return new Vegetarian();
-            case "fourseasons":
-                return new FourSeasons();
+                return new HawaiianPizza();
+            case "bacon_crispy":
+                return new BaconCrispyPizza();
+            case "american":
+                return new AmericanPizza();
+            case "traviata":
+                return new TraviataPizza();
             case "barcelona":
-                if ("barcelona".equals(location)) {
+                if (location.equalsIgnoreCase(Delegations.BARCELONA.getName())) {
                     return new BarcelonaPizza();
                 }
                 throw new InvalidPizzaException("Barcelona pizza is only available in Barcelona delegation");
             case "tarragona":
-                if ("tarragona".equals(location)) {
+                if (location.equalsIgnoreCase(Delegations.TARRAGONA.getName())) {
                     return new TarragonaPizza();
                 }
                 throw new InvalidPizzaException("Tarragona pizza is only available in Tarragona delegation");
             case "lleida":
-                if ("lleida".equals(location)) {
+                if (location.equalsIgnoreCase(Delegations.LLEIDA.getName())) {
                     return new LleidaPizza();
                 }
                 throw new InvalidPizzaException("Lleida pizza is only available in Lleida delegation");
             case "girona":
-                if ("girona".equals(location)) {
+                if (location.equalsIgnoreCase(Delegations.GIRONA.getName())) {
                     return new GironaPizza();
                 }
                 throw new InvalidPizzaException("Girona pizza is only available in Girona delegation");
@@ -64,15 +71,12 @@ public class PizzaFactory {
                 throw new InvalidPizzaException("Invalid pizza type: " + type);
         }
     }
-    
+
     private void validateExclusivePizza(String type, String location) throws InvalidPizzaException {
-        String[] exclusivePizzas = {"barcelona", "tarragona", "lleida", "girona"};
-        String[] validLocations = {"barcelona", "tarragona", "lleida", "girona"};
-        
-        // Validate location
+        // Validate that the location exists
         boolean validLocation = false;
-        for (String loc : validLocations) {
-            if (loc.equals(location)) {
+        for (Delegations delegation : Delegations.values()) {
+            if (delegation.getName().equalsIgnoreCase(location)) {
                 validLocation = true;
                 break;
             }
@@ -80,17 +84,15 @@ public class PizzaFactory {
         if (!validLocation) {
             throw new InvalidPizzaException("Invalid location: " + location);
         }
-        
-        // Check if trying to order exclusive pizza from wrong location
-        for (String exclusivePizza : exclusivePizzas) {
-            if (type.equals(exclusivePizza) && !location.equals(type)) {
-                throw new InvalidPizzaException(
-                    String.format("%s pizza is only available in %s delegation", 
-                        type.substring(0, 1).toUpperCase() + type.substring(1),
-                        type.substring(0, 1).toUpperCase() + type.substring(1)
-                    )
-                );
-            }
+
+        // Check if trying to order an exclusive pizza from wrong location
+        String pizzaType = type.toLowerCase();
+        if ((pizzaType.equals("barcelona") && !location.equalsIgnoreCase("Barcelona")) ||
+            (pizzaType.equals("girona") && !location.equalsIgnoreCase("Girona")) ||
+            (pizzaType.equals("lleida") && !location.equalsIgnoreCase("Lleida")) ||
+            (pizzaType.equals("tarragona") && !location.equalsIgnoreCase("Tarragona"))) {
+            throw new InvalidPizzaException(
+                "The " + type + " pizza is exclusive to " + type + " delegation");
         }
     }
 }

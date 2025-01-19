@@ -2,6 +2,7 @@ package com.pizzisalle;
 
 import com.pizzisalle.constants.Beverage;
 import com.pizzisalle.constants.CrustType;
+import com.pizzisalle.constants.Delegations;
 import com.pizzisalle.model.customer.Customer;
 import com.pizzisalle.model.order.Order;
 import com.pizzisalle.model.pizza.base.Pizza;
@@ -10,13 +11,24 @@ import com.pizzisalle.service.DelegationManager;
 
 public class Main {
     public static void main(String[] args) {
+        // Test Singleton Pattern
+        System.out.println("\nTesting Singleton Pattern:");
+        DelegationManager dm1 = DelegationManager.getInstance();
+        DelegationManager dm2 = DelegationManager.getInstance();
+        System.out.println("Are both instances the same? " + (dm1 == dm2));
+
+        // Test random delegation assignment
+        System.out.println("\nTesting Random Delegation Assignment:");
+        for (int i = 0; i < 5; i++) {
+            Delegations delegation = dm1.assignRandomDelegation();
+            System.out.println("Random delegation " + (i+1) + ": " + delegation.getName());
+        }
+
         // Create a customer
         Customer customer = new Customer("John Doe", "123456789", "Test Street 1", true, 25);
 
         // Assign a random delegation
-        DelegationManager delegationManager = DelegationManager.getInstance();
-        String delegation = delegationManager.assignRandomDelegation();
-        customer.setAssignedDelegation(delegation);
+        customer.setDelegation(dm1.assignRandomDelegation());
 
         // Create an order
         Order order = new Order(customer);
@@ -25,17 +37,17 @@ public class Main {
         Pizza margherita = new MargheritaPizza();
         order.addPizza(margherita);
 
-        // Set crust type and beverage
+        // Set crust type and add beverage
         order.setCrustType(CrustType.SICILIAN);
-        order.setBeverage(Beverage.SODA);
+        order.addBeverage(Beverage.SODA);
 
         // Print order details
         System.out.println("\nOrder Details:");
         System.out.println("Customer: " + order.getCustomer().getName());
-        System.out.println("Delegation: " + order.getCustomer().getAssignedDelegation());
+        System.out.println("Delegation: " + order.getCustomer().getDelegation().getName());
         System.out.println("Number of Pizzas: " + order.getPizzas().size());
         System.out.println("Crust Type: " + order.getCrustType());
-        System.out.println("Beverage: " + order.getBeverage());
-        System.out.println("Total Price: " + order.getTotalPrice());
+        System.out.println("Beverages: " + order.getBeverages());
+        System.out.println("Total Price: " + order.calculateTotalPrice());
     }
 }

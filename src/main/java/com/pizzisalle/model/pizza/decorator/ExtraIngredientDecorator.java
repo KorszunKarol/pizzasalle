@@ -1,10 +1,8 @@
 package com.pizzisalle.model.pizza.decorator;
 
-import com.pizzisalle.model.pizza.Pizza;
+import com.pizzisalle.model.pizza.base.Pizza;
 import com.pizzisalle.model.pizza.ingredient.Ingredient;
-
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * PATTERN: Decorator
@@ -24,15 +22,15 @@ public class ExtraIngredientDecorator extends PizzaDecorator {
     }
 
     @Override
-    public Map<Ingredient, Integer> getIngredients() {
-        Map<Ingredient, Integer> ingredients = new HashMap<>(super.getIngredients());
-        ingredients.merge(extraIngredient, quantity, Integer::sum);
+    public List<String> getIngredients() {
+        List<String> ingredients = super.getIngredients();
+        ingredients.add(extraIngredient.getName() + " (x" + quantity + ")");
         return ingredients;
     }
 
     @Override
-    public double getPrice() {
-        return super.getPrice() + (extraIngredient.getPrice() * quantity * EXTRA_INGREDIENT_PRICE_MULTIPLIER);
+    public double calculatePrice() {
+        return super.calculatePrice() + (extraIngredient.getPrice() * quantity * EXTRA_INGREDIENT_PRICE_MULTIPLIER);
     }
 
     @Override

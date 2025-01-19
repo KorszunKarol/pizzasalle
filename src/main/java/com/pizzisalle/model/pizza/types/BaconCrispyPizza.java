@@ -1,18 +1,19 @@
 package com.pizzisalle.model.pizza.types;
 
-import com.pizzisalle.model.pizza.Pizza;
-import java.util.Arrays;
+import com.pizzisalle.model.pizza.base.Pizza;
 
 public class BaconCrispyPizza extends Pizza {
-    private static final double BASE_PRICE = 13.99;
+    private static final double BASE_PRICE = 10.0;
 
     public BaconCrispyPizza() {
-        super("Bacon Crispy");
-        this.ingredients.addAll(Arrays.asList("Ham", "Chicken", "Bacon"));
+        super("Bacon Crispy", BASE_PRICE, false);
+        ingredients.add("Ham");
+        ingredients.add("Chicken");
+        ingredients.add("Bacon");
     }
 
     @Override
     public double calculatePrice() {
-        return BASE_PRICE + calculateIngredientsPrice();
+        return getBasePrice();
     }
 }

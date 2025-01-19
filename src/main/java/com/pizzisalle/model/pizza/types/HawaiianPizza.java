@@ -1,14 +1,14 @@
 package com.pizzisalle.model.pizza.types;
 
-import com.pizzisalle.model.pizza.Pizza;
-import java.util.Arrays;
+import com.pizzisalle.model.pizza.base.Pizza;
 
 public class HawaiianPizza extends Pizza {
-    private static final double BASE_PRICE = 12.0;
+    private static final double BASE_PRICE = 9.0;
 
     public HawaiianPizza() {
-        super("Hawaiian", BASE_PRICE);
-        this.ingredients.addAll(Arrays.asList("Ham", "Pineapple"));
+        super("Hawaiian", BASE_PRICE, false);
+        ingredients.add("Ham");
+        ingredients.add("Pineapple");
     }
 
     @Override

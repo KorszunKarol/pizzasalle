@@ -1,8 +1,26 @@
 #!/bin/bash
-# Clean any stray .class files in the project directory
-find . -name "*.class" -type f -delete
-rm -rf target
+
+# Clear previous build
+rm -rf target/
+
+# Create target directory
 mkdir -p target
-find src/main/java -name "*.java" > sources.txt
-javac -d target @sources.txt
+
+# Compile all Java files
+echo "Compiling Java files..."
+if ! javac -d target $(find src/main/java -name "*.java"); then
+    echo "Compilation failed!"
+    exit 1
+fi
+
+# Clear screen before running
+clear
+
+# Run the application
+echo "Starting PizziSalle application..."
+echo "--------------------------------"
 java -cp target com.pizzisalle.Main
+
+# Add exit message
+echo "--------------------------------"
+echo "Application terminated."

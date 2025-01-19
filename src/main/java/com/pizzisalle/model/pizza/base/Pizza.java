@@ -2,6 +2,8 @@ package com.pizzisalle.model.pizza.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * PATTERN: This class is part of multiple design patterns:
@@ -14,12 +16,12 @@ import java.util.List;
  *    allowing specialization in concrete classes.
  */
 public abstract class Pizza {
-    protected String name;
-    protected List<String> ingredients;
-    protected double basePrice;
-    protected boolean isExclusive;
+    protected final String name;
+    protected final double basePrice;
+    protected final boolean isExclusive;
+    protected final List<String> ingredients;
 
-    public Pizza(String name, double basePrice, boolean isExclusive) {
+    protected Pizza(String name, double basePrice, boolean isExclusive) {
         this.name = name;
         this.basePrice = basePrice;
         this.isExclusive = isExclusive;
@@ -49,5 +51,24 @@ public abstract class Pizza {
 
     public boolean isExclusive() {
         return isExclusive;
+    }
+
+    // Helper method to format price for display
+    public String getFormattedPrice() {
+        return String.format("€%.2f", calculatePrice());
+    }
+
+    // Add methods to get extra ingredients and their quantities
+    public List<String> getExtraIngredients() {
+        List<String> extras = new ArrayList<>();
+        return extras;
+    }
+
+    public Map<String, Integer> getIngredientQuantities() {
+        return new HashMap<>();  // Base implementation, decorators will override
+    }
+
+    public double getExtrasPrice() {
+        return 0.0;  // Base implementation, decorators will override
     }
 }

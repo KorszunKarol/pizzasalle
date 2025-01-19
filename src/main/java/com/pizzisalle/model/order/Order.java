@@ -2,7 +2,6 @@ package com.pizzisalle.model.order;
 
 import com.pizzisalle.constants.Beverage;
 import com.pizzisalle.constants.CrustType;
-import com.pizzisalle.exception.OrderException;
 import com.pizzisalle.model.customer.Customer;
 import com.pizzisalle.model.pizza.base.Pizza;
 
@@ -14,84 +13,119 @@ import java.util.List;
  * in a flexible and readable way.
  */
 public class Order {
-    private final Customer customer;
-    private final List<Pizza> pizzas;
-    private CrustType crustType;
-    private List<Beverage> beverages;
+    private Customer customer;
+    private List<Pizza> pizzas;
+    private CrustType crust;
+    private Beverage beverage;
     private double totalPrice;
 
-    public Order(Customer customer) {
-        if (customer == null) throw new OrderException("Customer cannot be null");
-        this.customer = customer;
+    public Order() {
         this.pizzas = new ArrayList<>();
-        this.beverages = new ArrayList<>();
-        this.crustType = CrustType.ORIGINAL; // Default crust type
     }
 
-    public void addPizza(Pizza pizza) {
-        if (pizza == null) {
-            throw new OrderException("Pizza cannot be null");
-        }
-        if (pizzas.size() >= 10) {
-            throw new OrderException("Cannot add more than 10 pizzas to an order");
-        }
-        pizzas.add(pizza);
-    }
-
-    public void setCrustType(CrustType crustType) {
-        if (crustType == null) throw new OrderException("Crust type cannot be null");
-        this.crustType = crustType;
-    }
-
-    public void addBeverage(Beverage beverage) {
-        if (beverage == null) {
-            throw new OrderException("Beverage cannot be null");
-        }
-        if (beverages.size() >= 10) {
-            throw new OrderException("Cannot add more than 10 beverages to an order");
-        }
-        if (beverage == Beverage.BEER && !customer.isAdult()) {
-            throw new OrderException("Customer must be 18 or older to order beer");
-        }
-        beverages.add(beverage);
+    public Order(Customer customer) {
+        this();
+        this.customer = customer;
     }
 
     public Customer getCustomer() {
         return customer;
     }
 
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
     public List<Pizza> getPizzas() {
-        return new ArrayList<>(pizzas);
+        return pizzas;
     }
 
-    public CrustType getCrustType() {
-        return crustType;
+    public void setPizzas(List<Pizza> pizzas) {
+        this.pizzas = pizzas;
     }
 
-    public List<Beverage> getBeverages() {
-        return new ArrayList<>(beverages);
+    public CrustType getCrust() {
+        return crust;
     }
 
-    public double calculateTotalPrice() {
-        try {
-            double total = 0;
+    public void setCrust(CrustType crust) {
+        this.crust = crust;
+    }
 
-            // Calculate pizza prices
-            for (Pizza pizza : pizzas) {
-                total += pizza.calculatePrice();
-                // Add crust type extra cost for each pizza
-                total += crustType.getExtraCost();
-            }
+    public Beverage getBeverage() {
+        return beverage;
+    }
 
-            // Add beverage prices
-            for (Beverage beverage : beverages) {
-                total += beverage.getPrice();
-            }
+    public void setBeverage(Beverage beverage) {
+        this.beverage = beverage;
+    }
 
-            this.totalPrice = total;
-            return total;
-        } catch (Exception e) {
-            throw new OrderException("Error calculating total price: " + e.getMessage());
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public void addPizza(Pizza pizza) {
+        this.pizzas.add(pizza);
+    }
+
+    public void removePizza(int index) {
+        if (index >= 0 && index < pizzas.size()) {
+            pizzas.remove(index);
         }
+    }
+
+    public double calculateTotal() {
+        double total = 0;
+
+        // Calculate pizzas base price
+        for (Pizza pizza : pizzas) {
+            total += pizza.calculatePrice();
+        }
+
+        // Add crust price for each pizza if not original
+        if (crust != null && crust != CrustType.ORIGINAL) {
+            total += (crust.getExtraCostInCents() / 100.0) * pizzas.size();
+        }
+
+        // Add beverage price
+        if (beverage != null) {
+            total += switch(beverage) {
+                case WATER -> 1.00;
+                case SODA -> 1.50;
+                case BEER -> 2.00;
+            };
+        }
+
+        // Apply first-order discount if applicable
+        if (customer.isFirstOrder()) {
+            total = total * 0.9; // 10% discount
+        }
+
+        this.totalPrice = total;
+        return total;
+    }
+
+    public double getPizzasSubtotal() {
+        return pizzas.stream()
+                    .mapToDouble(Pizza::calculatePrice)
+                    .sum();
+    }
+
+    public double getCrustSubtotal() {
+        if (crust == null || crust == CrustType.ORIGINAL) return 0.0;
+        return (crust.getExtraCostInCents() / 100.0) * pizzas.size();
+    }
+
+    public double getBeveragePrice() {
+        if (beverage == null) return 0.0;
+        return switch(beverage) {
+            case WATER -> 1.00;
+            case SODA -> 1.50;
+            case BEER -> 2.00;
+        };
     }
 }

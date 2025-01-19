@@ -2,6 +2,8 @@ package com.pizzisalle.model.pizza.decorator;
 
 import com.pizzisalle.model.pizza.base.Pizza;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * PATTERN: Decorator - This abstract class serves as the base decorator for all pizza modifications.
@@ -23,22 +25,22 @@ public abstract class PizzaDecorator extends Pizza {
     }
 
     @Override
-    public String getName() {
-        return pizza.getName();
-    }
-
-    @Override
     public List<String> getIngredients() {
-        return pizza.getIngredients();
+        return new ArrayList<>(pizza.getIngredients());
     }
 
     @Override
-    public double getBasePrice() {
-        return pizza.getBasePrice();
+    public List<String> getExtraIngredients() {
+        return pizza.getExtraIngredients();
     }
 
     @Override
-    public boolean isExclusive() {
-        return pizza.isExclusive();
+    public Map<String, Integer> getIngredientQuantities() {
+        return pizza.getIngredientQuantities();
+    }
+
+    @Override
+    public double getExtrasPrice() {
+        return pizza.getExtrasPrice();
     }
 }

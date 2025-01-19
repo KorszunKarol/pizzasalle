@@ -2,14 +2,15 @@ package com.pizzisalle.model.pizza.types;
 
 import com.pizzisalle.model.pizza.base.Pizza;
 
-public class BaconCrispyPizza extends Pizza {
-    private static final double BASE_PRICE = 10.00;
+public class DiabloPizza extends Pizza {
+    private static final double BASE_PRICE = 11.99;
 
-    public BaconCrispyPizza() {
-        super("Bacon Crispy", BASE_PRICE, false);
+    public DiabloPizza() {
+        super("Diablo", BASE_PRICE, false);
         ingredients.add("Ham");
-        ingredients.add("Chicken");
+        ingredients.add("Beef");
         ingredients.add("Bacon");
+        ingredients.add("Chicken");
     }
 
     @Override

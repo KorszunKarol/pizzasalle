@@ -47,6 +47,36 @@ public class PizzaFactory {
                 return new AmericanPizza();
             case "traviata":
                 return new TraviataPizza();
+            case "burger":
+                return new BurgerPizza();
+            case "castellera":
+                return new CastelleraPizza();
+            case "cowboy":
+                return new CowboyPizza();
+            case "texas":
+                return new TexasPizza();
+            case "coast":
+                return new CoastPizza();
+            case "bbq":
+                return new BBQPizza();
+            case "diablo":
+                return new DiabloPizza();
+            case "carbonara":
+                return new CarbonaraPizza();
+            case "spanish":
+                return new SpanishPizza();
+            case "4_cheeses":
+                return new FourCheesePizza();
+            case "pepperoni":
+                return new PepperoniPizza();
+            case "vegetal":
+                return new VegetalPizza();
+            case "6_cheeses":
+                return new SixCheesePizza();
+            case "mallorca":
+                return new MallorcaPizza();
+            case "carbonara_deluxe":
+                return new CarbonaraDeluxePizza();
             case "barcelona":
                 if (location.equalsIgnoreCase(Delegations.BARCELONA.getName())) {
                     return new BarcelonaPizza();

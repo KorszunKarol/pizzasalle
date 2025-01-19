@@ -3,46 +3,51 @@ package com.pizzisalle.model.pizza.decorator;
 import com.pizzisalle.model.pizza.base.Pizza;
 import com.pizzisalle.model.pizza.ingredient.Ingredient;
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * PATTERN: Decorator
- * This class implements the Decorator pattern to dynamically add or modify ingredients in a pizza.
- * It allows adding new ingredients or increasing the quantity of existing ones without altering
- * the original pizza structure.
+ * This class implements the Decorator pattern to dynamically add new ingredients to a pizza.
+ * It allows adding extra ingredients without altering the original pizza structure.
  */
 public class ExtraIngredientDecorator extends PizzaDecorator {
     private final Ingredient extraIngredient;
-    private final int quantity;
-    private static final double EXTRA_INGREDIENT_PRICE_MULTIPLIER = 0.5;
 
-    public ExtraIngredientDecorator(Pizza pizza, Ingredient ingredient, int quantity) {
+    public ExtraIngredientDecorator(Pizza pizza, Ingredient extraIngredient) {
         super(pizza);
-        this.extraIngredient = ingredient;
-        this.quantity = quantity;
-    }
-
-    @Override
-    public List<String> getIngredients() {
-        List<String> ingredients = super.getIngredients();
-        ingredients.add(extraIngredient.getName() + " (x" + quantity + ")");
-        return ingredients;
+        this.extraIngredient = extraIngredient;
     }
 
     @Override
     public double calculatePrice() {
-        return super.calculatePrice() + (extraIngredient.getPrice() * quantity * EXTRA_INGREDIENT_PRICE_MULTIPLIER);
+        return super.calculatePrice() + (extraIngredient.getPriceInCents() / 100.0);
+    }
+
+    @Override
+    public List<String> getIngredients() {
+        List<String> ingredients = new ArrayList<>(super.getIngredients());
+        ingredients.add(extraIngredient.getName());
+        return ingredients;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " + " + quantity + "x " + extraIngredient.getName();
+        return super.toString() + " + " + extraIngredient.getName();
     }
 
     public Ingredient getExtraIngredient() {
         return extraIngredient;
     }
 
-    public int getQuantity() {
-        return quantity;
+    @Override
+    public List<String> getExtraIngredients() {
+        List<String> extras = new ArrayList<>(super.getExtraIngredients());
+        extras.add(extraIngredient.getName());
+        return extras;
+    }
+
+    @Override
+    public double getExtrasPrice() {
+        return super.getExtrasPrice() + (extraIngredient.getPriceInCents() / 100.0);
     }
 }

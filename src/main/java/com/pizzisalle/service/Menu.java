@@ -31,12 +31,11 @@ public class Menu {
         System.out.println("             🍕 Pizza Menu - " + delegation.getName() + " 🍕");
         System.out.println(SEPARATOR);
 
-        List<Pizza> availablePizzas = getAvailablePizzas(delegation);  // Only get pizzas for this delegation
+        List<Pizza> availablePizzas = getAvailablePizzas(delegation);
         for (int i = 0; i < availablePizzas.size(); i++) {
             Pizza pizza = availablePizzas.get(i);
             String exclusive = pizza.isExclusive() ? " ⭐" : "";
 
-            // Format ingredients
             String ingredientsList = pizza.getIngredients().isEmpty() ?
                 "Classic (Tomato sauce & Cheese)" :
                 String.join(", ", pizza.getIngredients());
@@ -56,7 +55,6 @@ public class Menu {
 
     private List<Pizza> getAvailablePizzas(Delegations delegation) {
         List<Pizza> availablePizzas = new ArrayList<>();
-        // Add common pizzas available everywhere
         availablePizzas.add(new MargheritaPizza());
         availablePizzas.add(new HawaiianPizza());
         availablePizzas.add(new BaconCrispyPizza());
@@ -78,7 +76,6 @@ public class Menu {
         availablePizzas.add(new MallorcaPizza());
         availablePizzas.add(new CarbonaraDeluxePizza());
 
-        // Add only the exclusive pizza for this delegation
         switch (delegation) {
             case BARCELONA:
                 availablePizzas.add(new BarcelonaPizza());
@@ -180,20 +177,11 @@ public class Menu {
 
     public static void clearScreen() {
         try {
-            final String os = System.getProperty("os.name");
-            if (os.contains("Windows")) {
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } else {
-                System.out.print("\033[H\033[2J");
-                System.out.flush();
-                // Alternative clear method for Unix-based systems
-                Runtime.getRuntime().exec("clear");
-            }
+            ProcessBuilder pb = new ProcessBuilder("clear");
+            pb.inheritIO().start().waitFor();
         } catch (Exception e) {
-            // Fallback if the above methods fail
-            for (int i = 0; i < 100; i++) {
-                System.out.println();
-            }
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
         }
     }
 }

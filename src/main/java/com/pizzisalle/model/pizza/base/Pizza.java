@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import com.pizzisalle.constants.CrustType;
 
 /**
  * PATTERN: This class is part of multiple design patterns:
@@ -20,6 +21,7 @@ public abstract class Pizza {
     protected final double basePrice;
     protected final boolean isExclusive;
     protected final List<String> ingredients;
+    protected CrustType crustType = CrustType.ORIGINAL;
 
     protected Pizza(String name, double basePrice, boolean isExclusive) {
         this.name = name;
@@ -70,5 +72,13 @@ public abstract class Pizza {
 
     public double getExtrasPrice() {
         return 0.0;  // Base implementation, decorators will override
+    }
+
+    public void setCrustType(CrustType crustType) {
+        this.crustType = crustType;
+    }
+
+    public CrustType getCrustType() {
+        return crustType;
     }
 }

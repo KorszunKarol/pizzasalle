@@ -24,16 +24,6 @@ public class OrderBuilder {
         return this;
     }
 
-    public OrderBuilder setCrust(CrustType crust) {
-        order.setCrust(crust);
-        return this;
-    }
-
-    public OrderBuilder setBeverage(Beverage beverage) {
-        order.setBeverage(beverage);
-        return this;
-    }
-
     public Order build() {
         return order;
     }

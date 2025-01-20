@@ -21,6 +21,7 @@ public class Order {
     }
 
     public void addPizza(Pizza pizza) {
+        pizza.setCrustType(this.crustType);
         pizzas.add(pizza);
     }
 
@@ -78,10 +79,6 @@ public class Order {
     }
 
     public double calculateTotal() {
-        double total = getPizzasSubtotal() + getCrustSubtotal() + getBeveragePrice();
-        if (customer.isFirstOrder()) {
-            total *= 0.9; // 10% discount for first orders
-        }
-        return total;
+        return getPizzasSubtotal() + getCrustSubtotal() + getBeveragePrice();
     }
 }

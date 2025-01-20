@@ -30,21 +30,23 @@ public class Menu {
         System.out.println(SEPARATOR);
         System.out.println("             🍕 Pizza Menu - " + delegation.getName() + " 🍕");
         System.out.println(SEPARATOR);
+        System.out.println("All pizzas come with tomato sauce and cheese by default.\n");
 
         List<Pizza> availablePizzas = getAvailablePizzas(delegation);
         for (int i = 0; i < availablePizzas.size(); i++) {
             Pizza pizza = availablePizzas.get(i);
             String exclusive = pizza.isExclusive() ? " ⭐" : "";
 
-            String ingredientsList = pizza.getIngredients().isEmpty() ?
-                "Classic (Tomato sauce & Cheese)" :
-                String.join(", ", pizza.getIngredients());
+            List<String> additionalIngredients = pizza.getAdditionalIngredients();
+            String ingredientsList = additionalIngredients.isEmpty() ?
+                "No additional ingredients" :
+                String.join(", ", additionalIngredients);
 
             System.out.printf("%2d. %-20s €%-8.2f%n",
                 (i + 1),
                 pizza.getName(),
                 pizza.getBasePrice());
-            System.out.printf("     └─ Ingredients: %s%s%n", ingredientsList, exclusive);
+            System.out.printf("     └─ Additional Ingredients: %s%s%n", ingredientsList, exclusive);
             System.out.println();
         }
 

@@ -5,11 +5,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
-/**
- * PATTERN: Decorator - This abstract class serves as the base decorator for all pizza modifications.
- * It implements the same interface as the component (Pizza) and has a reference to an instance
- * of the component. This allows for dynamic addition of new behaviors to pizzas at runtime.
- */
 public abstract class PizzaDecorator extends Pizza {
     protected final Pizza pizza;
 

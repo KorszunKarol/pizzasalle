@@ -1,8 +1,8 @@
 package com.pizzisalle.constants;
 
 /**
- * Enumeration representing the available PizziSalle delegations.
- * This enum ensures type safety and consistency when referring to delegations throughout the application.
+ * PATTERN: Enumeration - This enum ensures type safety and consistency when referring to delegations
+ * throughout the application, following the type-safe enum pattern.
  */
 public enum Delegations {
     BARCELONA("Barcelona"),

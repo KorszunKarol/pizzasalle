@@ -27,48 +27,45 @@ public class IngredientFactory {
     }
 
     private void initializeIngredients() {
-        // Basic ingredients
-        addIngredient("Tomato sauce", 50);  // €0.50
-        addIngredient("Cheese", 50);        // €0.50
 
-        // Meats
-        addIngredient("Ham", 100);          // €1.00
-        addIngredient("Chicken", 100);      // €1.00
-        addIngredient("Bacon", 100);        // €1.00
-        addIngredient("Beef", 120);         // €1.20
-        addIngredient("Frankfurt", 100);    // €1.00
-        addIngredient("Pepperoni", 100);    // €1.00
-        addIngredient("Jamón Serrano", 200);// €2.00
-        addIngredient("Miniburgers", 150);  // €1.50
-        addIngredient("Sausage", 100);      // €1.00
-        addIngredient("Sobrassada", 150);   // €1.50
+        addIngredient("Tomato sauce", 50);
+        addIngredient("Cheese", 50);
 
-        // Seafood
-        addIngredient("Tuna", 100);         // €1.00
-        addIngredient("Anchovies", 100);    // €1.00
-        addIngredient("Prawns", 150);       // €1.50
+        addIngredient("Ham", 100);
+        addIngredient("Chicken", 100);
+        addIngredient("Bacon", 100);
+        addIngredient("Beef", 120);
+        addIngredient("Frankfurt", 100);
+        addIngredient("Pepperoni", 100);
+        addIngredient("Jamón Serrano", 200);
+        addIngredient("Miniburgers", 150);
+        addIngredient("Sausage", 100);
+        addIngredient("Sobrassada", 150);
 
-        // Vegetables
-        addIngredient("Onion", 50);         // €0.50
-        addIngredient("Bell Pepper", 50);   // €0.50
-        addIngredient("Tomato slices", 50); // €0.50
-        addIngredient("Artichoke", 100);    // €1.00
-        addIngredient("Mushrooms", 80);     // €0.80
-        addIngredient("Olives", 50);        // €0.50
-        addIngredient("Pineapple", 80);     // €0.80
 
-        // Cheeses
-        addIngredient("Mozzarella", 100);   // €1.00
-        addIngredient("Goat Cheese", 150);  // €1.50
-        addIngredient("Brie", 150);         // €1.50
-        addIngredient("Emmental", 120);     // €1.20
-        addIngredient("Roquefort", 150);    // €1.50
-        addIngredient("Cheddar", 120);      // €1.20
+        addIngredient("Tuna", 100);
+        addIngredient("Anchovies", 100);
+        addIngredient("Prawns", 150);
 
-        // Sauces and Others
-        addIngredient("BBQ Sauce", 80);     // €0.80
-        addIngredient("Carbonara sauce", 100);// €1.00
-        addIngredient("Honey", 50);         // €0.50
+        addIngredient("Onion", 50);
+        addIngredient("Bell Pepper", 50);
+        addIngredient("Tomato slices", 50);
+        addIngredient("Artichoke", 100);
+        addIngredient("Mushrooms", 80);
+        addIngredient("Olives", 50);
+        addIngredient("Pineapple", 80);
+
+        addIngredient("Mozzarella", 100);
+        addIngredient("Goat Cheese", 150);
+        addIngredient("Brie", 150);
+        addIngredient("Emmental", 120);
+        addIngredient("Roquefort", 150);
+        addIngredient("Cheddar", 120);
+
+
+        addIngredient("BBQ Sauce", 80);
+        addIngredient("Carbonara sauce", 100);
+        addIngredient("Honey", 50);
     }
 
     private void addIngredient(String name, int priceInCents) {

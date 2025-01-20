@@ -12,16 +12,14 @@ public class Customer {
     private String name;
     private String phone;
     private String address;
-    private boolean firstOrder;
     private int age;
     private Delegations delegation;
     private static final Random random = new Random();
 
-    public Customer(String name, String phone, String address, boolean firstOrder, int age) {
+    public Customer(String name, String phone, String address, int age) {
         setName(name);
         setPhone(phone);
         setAddress(address);
-        this.firstOrder = firstOrder;
         this.age = age;
         assignRandomDelegation();
     }
@@ -29,7 +27,6 @@ public class Customer {
     private void assignRandomDelegation() {
         DelegationManager delegationManager = DelegationManager.getInstance();
         this.delegation = delegationManager.assignRandomDelegation();
-        // Remove the welcome message from here - it should be handled by the main flow
     }
 
     public void setName(String name) {
@@ -56,14 +53,13 @@ public class Customer {
     public String getName() { return name; }
     public String getPhone() { return phone; }
     public String getAddress() { return address; }
-    public boolean isFirstOrder() { return firstOrder; }
     public int getAge() { return age; }
     public Delegations getDelegation() { return delegation; }
     public boolean isAdult() { return age >= 18; }
 
     @Override
     public String toString() {
-        return String.format("Customer{name='%s', phone='%s', address='%s', firstOrder=%s, age=%d, delegation=%s}",
-                name, phone, address, firstOrder, age, delegation.getName());
+        return String.format("Customer{name='%s', phone='%s', address='%s', age=%d, delegation=%s}",
+                name, phone, address, age, delegation.getName());
     }
 }

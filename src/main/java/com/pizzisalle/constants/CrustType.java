@@ -1,9 +1,9 @@
 package com.pizzisalle.constants;
 
 public enum CrustType {
-    ORIGINAL(0),     // €0.00
-    THIN(100),       // €1.00
-    SICILIAN(200);   // €2.00
+    ORIGINAL(0),
+    THIN(100),
+    SICILIAN(200);
 
     private final int extraCostInCents;
 

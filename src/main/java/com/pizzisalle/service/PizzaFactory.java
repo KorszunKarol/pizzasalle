@@ -32,10 +32,8 @@ public class PizzaFactory {
             throw new InvalidPizzaException("Location cannot be null or empty");
         }
 
-        // Validate location-specific pizzas
         validateExclusivePizza(type, location);
 
-        // Create the requested pizza
         switch (type.toLowerCase()) {
             case "margherita":
                 return new MargheritaPizza();
@@ -103,7 +101,6 @@ public class PizzaFactory {
     }
 
     private void validateExclusivePizza(String type, String location) throws InvalidPizzaException {
-        // Validate that the location exists
         boolean validLocation = false;
         for (Delegations delegation : Delegations.values()) {
             if (delegation.getName().equalsIgnoreCase(location)) {
@@ -115,7 +112,6 @@ public class PizzaFactory {
             throw new InvalidPizzaException("Invalid location: " + location);
         }
 
-        // Check if trying to order an exclusive pizza from wrong location
         String pizzaType = type.toLowerCase();
         if ((pizzaType.equals("barcelona") && !location.equalsIgnoreCase("Barcelona")) ||
             (pizzaType.equals("girona") && !location.equalsIgnoreCase("Girona")) ||

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import com.pizzisalle.constants.Beverage;
 import com.pizzisalle.constants.CrustType;
 
 /**
@@ -22,12 +23,16 @@ public abstract class Pizza {
     protected final boolean isExclusive;
     protected final List<String> ingredients;
     protected CrustType crustType = CrustType.ORIGINAL;
+    protected Beverage beverage;
 
     protected Pizza(String name, double basePrice, boolean isExclusive) {
         this.name = name;
         this.basePrice = basePrice;
         this.isExclusive = isExclusive;
         this.ingredients = new ArrayList<>();
+
+        this.ingredients.add("Tomato sauce");
+        this.ingredients.add("Cheese");
     }
 
     /**
@@ -47,31 +52,42 @@ public abstract class Pizza {
         return basePrice;
     }
 
+    /**
+     * Returns all ingredients including default ones (tomato sauce and cheese)
+     */
     public List<String> getIngredients() {
         return new ArrayList<>(ingredients);
+    }
+
+    /**
+     * Returns only the additional ingredients (excluding tomato sauce and cheese)
+     */
+    public List<String> getAdditionalIngredients() {
+        List<String> additionalIngredients = new ArrayList<>(ingredients);
+        additionalIngredients.remove("Tomato sauce");
+        additionalIngredients.remove("Cheese");
+        return additionalIngredients;
     }
 
     public boolean isExclusive() {
         return isExclusive;
     }
 
-    // Helper method to format price for display
     public String getFormattedPrice() {
         return String.format("€%.2f", calculatePrice());
     }
 
-    // Add methods to get extra ingredients and their quantities
     public List<String> getExtraIngredients() {
         List<String> extras = new ArrayList<>();
         return extras;
     }
 
     public Map<String, Integer> getIngredientQuantities() {
-        return new HashMap<>();  // Base implementation, decorators will override
+        return new HashMap<>();
     }
 
     public double getExtrasPrice() {
-        return 0.0;  // Base implementation, decorators will override
+        return 0.0;
     }
 
     public void setCrustType(CrustType crustType) {
@@ -80,5 +96,27 @@ public abstract class Pizza {
 
     public CrustType getCrustType() {
         return crustType;
+    }
+
+    public void setBeverage(Beverage beverage) {
+        this.beverage = beverage;
+    }
+
+    public Beverage getBeverage() {
+        return beverage;
+    }
+
+    public double getBeveragePrice() {
+        if (beverage == null) return 0.0;
+        return switch(beverage) {
+            case WATER -> 1.00;
+            case SODA -> 1.50;
+            case BEER -> 2.00;
+        };
+    }
+
+    public double getCrustPrice() {
+        if (crustType == null || crustType == CrustType.ORIGINAL) return 0.0;
+        return crustType.getExtraCostInCents() / 100.0;
     }
 }

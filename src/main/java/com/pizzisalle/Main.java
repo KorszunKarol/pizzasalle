@@ -62,6 +62,23 @@ public class Main {
             if (pizza == null) break;
 
             pizza = handlePizzaCustomization(pizza);
+
+            menu.displayCrustTypes();
+            int crustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
+            CrustType selectedCrust = switch (crustChoice) {
+                case 1 -> CrustType.ORIGINAL;
+                case 2 -> CrustType.THIN;
+                case 3 -> CrustType.SICILIAN;
+                default -> CrustType.ORIGINAL;
+            };
+            pizza.setCrustType(selectedCrust);
+
+            menu.displayBeverages();
+            Beverage beverage = inputHandler.readBeverageChoice(customer.getAge());
+            if (beverage != null) {
+                pizza.setBeverage(beverage);
+            }
+
             orderBuilder.addPizza(pizza);
             pizzaCount++;
 
@@ -79,22 +96,6 @@ public class Main {
             System.out.println("You must add at least one pizza to your order.");
             return;
         }
-
-        // Add crust selection
-        menu.displayCrustTypes();
-        int crustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
-        CrustType selectedCrust = switch (crustChoice) {
-            case 1 -> CrustType.ORIGINAL;
-            case 2 -> CrustType.THIN;
-            case 3 -> CrustType.SICILIAN;
-            default -> CrustType.ORIGINAL;
-        };
-        orderBuilder.setCrust(selectedCrust);
-
-        // Beverage selection
-        menu.displayBeverages();
-        Beverage beverage = inputHandler.readBeverageChoice(customer.getAge());
-        orderBuilder.setBeverage(beverage);
 
         Order order = orderBuilder.build();
         orderProcessor.processOrder(order);

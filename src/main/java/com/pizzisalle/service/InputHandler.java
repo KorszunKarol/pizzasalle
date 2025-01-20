@@ -62,13 +62,9 @@ public class InputHandler {
             address = readString("Enter your address: ");
         }
 
-        System.out.print("Is this your first order? (y/n): ");
-        boolean firstOrder = scanner.nextLine().toLowerCase().startsWith("y");
+        int age = readInteger("Enter age: ", 1, 120);
 
-        System.out.print("Enter age: ");
-        int age = Integer.parseInt(scanner.nextLine());
-
-        return new Customer(name, phone, address, firstOrder, age);
+        return new Customer(name, phone, address, age);
     }
 
     private String readEmail() {
@@ -155,10 +151,10 @@ public class InputHandler {
                 int choice = readInteger("Select extra ingredient: ", 0, 7);
 
                 if (choice == 0) {
-                    return null;  // User chose to finish
+                    return null;
                 }
 
-                // Map numeric choices to ingredient names as defined in IngredientFactory
+
                 Ingredient ingredient = switch (choice) {
                     case 1 -> IngredientFactory.getInstance().getIngredient("Cheese");
                     case 2 -> IngredientFactory.getInstance().getIngredient("Mushrooms");
@@ -166,7 +162,7 @@ public class InputHandler {
                     case 4 -> IngredientFactory.getInstance().getIngredient("Ham");
                     case 5 -> IngredientFactory.getInstance().getIngredient("Pineapple");
                     case 6 -> IngredientFactory.getInstance().getIngredient("Chicken");
-                    case 7 -> IngredientFactory.getInstance().getIngredient("Bell Pepper"); // Changed from MIXED_VEGETABLES
+                    case 7 -> IngredientFactory.getInstance().getIngredient("Bell Pepper");
                     default -> throw new IllegalStateException("Invalid ingredient choice: " + choice);
                 };
 
@@ -208,15 +204,13 @@ public class InputHandler {
         private final String email;
         private final String phone;
         private final String address;
-        private final boolean firstOrder;
         private final int age;
 
-        public CustomerInfo(String name, String email, String phone, String address, boolean firstOrder, int age) {
+        public CustomerInfo(String name, String email, String phone, String address, int age) {
             this.name = name;
             this.email = email;
             this.phone = phone;
             this.address = address;
-            this.firstOrder = firstOrder;
             this.age = age;
         }
 
@@ -224,7 +218,6 @@ public class InputHandler {
         public String getEmail() { return email; }
         public String getPhone() { return phone; }
         public String getAddress() { return address; }
-        public boolean isFirstOrder() { return firstOrder; }
         public int getAge() { return age; }
     }
 

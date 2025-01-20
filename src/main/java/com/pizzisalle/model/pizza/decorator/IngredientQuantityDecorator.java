@@ -12,7 +12,6 @@ import java.util.HashMap;
  * It allows increasing the amount of an ingredient that's already on the pizza.
  */
 public class IngredientQuantityDecorator extends PizzaDecorator {
-    private static final double QUANTITY_PRICE_MULTIPLIER = 0.3;
     private final IngredientQuantity ingredientQuantity;
 
     public IngredientQuantityDecorator(Pizza pizza, IngredientQuantity ingredientQuantity) {
@@ -22,8 +21,10 @@ public class IngredientQuantityDecorator extends PizzaDecorator {
 
     @Override
     public double calculatePrice() {
-        return super.calculatePrice() +
-               (ingredientQuantity.getTotalPriceInCents() / 100.0 * QUANTITY_PRICE_MULTIPLIER);
+        double basePrice = super.calculatePrice();
+        double additionalQuantityPrice = (ingredientQuantity.getQuantity() - 1) *
+                                       (ingredientQuantity.getIngredient().getPriceInCents() / 100.0);
+        return basePrice + additionalQuantityPrice;
     }
 
     @Override
@@ -54,7 +55,7 @@ public class IngredientQuantityDecorator extends PizzaDecorator {
 
     @Override
     public double getExtrasPrice() {
-        return pizza.getExtrasPrice() +
-               (ingredientQuantity.getIngredient().getPriceInCents() / 100.0) * (ingredientQuantity.getQuantity() - 1);
+        return super.getExtrasPrice() +
+               ((ingredientQuantity.getQuantity() - 1) * (ingredientQuantity.getIngredient().getPriceInCents() / 100.0));
     }
 }

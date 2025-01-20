@@ -171,14 +171,24 @@ public class OrderProcessor {
                 summary.append("  Additional Ingredients: ").append(String.join(", ", additionalIngredients)).append("\n");
             }
 
+            Map<String, Integer> quantities = pizza.getIngredientQuantities();
             List<String> extras = pizza.getExtraIngredients();
-            if (!extras.isEmpty()) {
+            if (!extras.isEmpty() || !quantities.isEmpty()) {
                 summary.append("  Extra ingredients:\n");
                 for (String extra : extras) {
-                    Ingredient ingredient = IngredientFactory.getInstance().getIngredient(extra);
-                    double price = ingredient.getPriceInCents() / 100.0;
-                    summary.append("    + ").append(extra)
-                           .append(" (+€").append(String.format("%.2f", price)).append(")\n");
+                    Ingredient ingredient = IngredientFactory.getInstance().getIngredient(extra.split(" \\(x")[0]);
+                    int quantity = quantities.getOrDefault(ingredient.getName(), 1);
+                    double price;
+                    if (quantity > 1) {
+                        price = ((quantity - 1) * ingredient.getPriceInCents()) / 100.0;
+                        summary.append("    + ").append(ingredient.getName())
+                               .append(" (x").append(quantity).append(")")
+                               .append(" (+€").append(String.format("%.2f", price)).append(")\n");
+                    } else {
+                        price = ingredient.getPriceInCents() / 100.0;
+                        summary.append("    + ").append(extra)
+                               .append(" (+€").append(String.format("%.2f", price)).append(")\n");
+                    }
                 }
             }
 

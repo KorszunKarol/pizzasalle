@@ -148,25 +148,47 @@ public class InputHandler {
         while (true) {
             try {
                 menu.displayExtraIngredients();
-                int choice = readInteger("Select extra ingredient: ", 0, 7);
+                int choice = readInteger("Select extra ingredient: ", 0, 30);
 
                 if (choice == 0) {
                     return null;
                 }
 
-
-                Ingredient ingredient = switch (choice) {
-                    case 1 -> IngredientFactory.getInstance().getIngredient("Cheese");
-                    case 2 -> IngredientFactory.getInstance().getIngredient("Mushrooms");
-                    case 3 -> IngredientFactory.getInstance().getIngredient("Pepperoni");
-                    case 4 -> IngredientFactory.getInstance().getIngredient("Ham");
-                    case 5 -> IngredientFactory.getInstance().getIngredient("Pineapple");
-                    case 6 -> IngredientFactory.getInstance().getIngredient("Chicken");
-                    case 7 -> IngredientFactory.getInstance().getIngredient("Bell Pepper");
+                String ingredientName = switch (choice) {
+                    case 1 -> "Cheese";
+                    case 2 -> "Ham";
+                    case 3 -> "Chicken";
+                    case 4 -> "Bacon";
+                    case 5 -> "Beef";
+                    case 6 -> "Frankfurt";
+                    case 7 -> "Pepperoni";
+                    case 8 -> "Jamón Serrano";
+                    case 9 -> "Miniburgers";
+                    case 10 -> "Sausage";
+                    case 11 -> "Sobrassada";
+                    case 12 -> "Tuna";
+                    case 13 -> "Anchovies";
+                    case 14 -> "Prawns";
+                    case 15 -> "Onion";
+                    case 16 -> "Bell Pepper";
+                    case 17 -> "Tomato slices";
+                    case 18 -> "Artichoke";
+                    case 19 -> "Mushrooms";
+                    case 20 -> "Olives";
+                    case 21 -> "Pineapple";
+                    case 22 -> "Mozzarella";
+                    case 23 -> "Goat Cheese";
+                    case 24 -> "Brie";
+                    case 25 -> "Emmental";
+                    case 26 -> "Roquefort";
+                    case 27 -> "Cheddar";
+                    case 28 -> "BBQ Sauce";
+                    case 29 -> "Carbonara sauce";
+                    case 30 -> "Honey";
                     default -> throw new IllegalStateException("Invalid ingredient choice: " + choice);
                 };
 
-                return ingredient;
+                return IngredientFactory.getInstance().getIngredient(ingredientName);
             } catch (Exception e) {
                 System.out.println("❌ Error selecting ingredient: " + e.getMessage());
                 System.out.println("Please try again or select 0 to cancel.");

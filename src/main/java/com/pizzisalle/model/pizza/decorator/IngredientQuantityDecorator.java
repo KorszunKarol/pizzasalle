@@ -5,6 +5,7 @@ import com.pizzisalle.model.pizza.ingredient.IngredientQuantity;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * PATTERN: Decorator
@@ -40,6 +41,16 @@ public class IngredientQuantityDecorator extends PizzaDecorator {
             }
         }
         return ingredients;
+    }
+
+    @Override
+    public List<String> getExtraIngredients() {
+        List<String> extras = new ArrayList<>(super.getExtraIngredients());
+        String ingredientName = ingredientQuantity.getIngredient().getName();
+        if (ingredientQuantity.getQuantity() > 1) {
+            extras.add(ingredientName + " (x" + ingredientQuantity.getQuantity() + ")");
+        }
+        return extras;
     }
 
     public IngredientQuantity getIngredientQuantity() {

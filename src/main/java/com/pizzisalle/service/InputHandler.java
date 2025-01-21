@@ -12,19 +12,79 @@ import com.pizzisalle.exception.InvalidPizzaException;
 import com.pizzisalle.model.pizza.base.Pizza;
 import com.pizzisalle.model.pizza.ingredient.Ingredient;
 import com.pizzisalle.model.customer.Customer;
+import java.util.Random;
 
 public class InputHandler {
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@(.+)$";
+    private final Scanner scanner;
+    private Menu menu;
     private static final String PHONE_REGEX = "^\\d{9}$";
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final int MINIMUM_AGE_FOR_BEER = 18;
-    private final Menu menu;
     private final PizzaFactory pizzaFactory;
+    private final DatabaseManager dbManager;
+
+    public InputHandler(Menu menu) {
+        this.scanner = new Scanner(System.in);
+        this.menu = menu;
+        this.pizzaFactory = PizzaFactory.getInstance();
+        this.dbManager = DatabaseManager.getInstance();
+    }
 
     public InputHandler() {
-        this.menu = new Menu();
+        this.scanner = new Scanner(System.in);
         this.pizzaFactory = PizzaFactory.getInstance();
+        this.dbManager = DatabaseManager.getInstance();
+    }
+
+    public void setMenu(Menu menu) {
+        this.menu = menu;
+    }
+
+    public static InputHandler createInputHandler() {
+        InputHandler inputHandler = new InputHandler(null);
+        Menu menu = new Menu(inputHandler);
+        inputHandler.setMenu(menu);
+        return inputHandler;
+    }
+
+    public Menu getMenu() {
+        return menu;
+    }
+
+    public Customer readCustomerInfo() {
+        System.out.println("\n=== Customer Registration ===");
+        DatabaseManager dbManager = DatabaseManager.getInstance();
+        String phone = readPhoneNumber();
+        Customer existingCustomer = dbManager.findCustomerByPhone(phone);
+
+        if (existingCustomer != null) {
+            System.out.println("Welcome back, " + existingCustomer.getName() + "!");
+            return existingCustomer;
+        }
+
+        System.out.println("\nNew customer registration:");
+        String name = readString("Enter name:");
+        String address = readString("Enter delivery address:");
+        int age = readAge();
+        Delegations delegation = Delegations.values()[new Random().nextInt(Delegations.values().length)];
+        Customer newCustomer = new Customer(name, phone, address, age, delegation, true);
+        dbManager.saveCustomer(newCustomer);
+        return newCustomer;
+    }
+
+    private int readAge() {
+        while (true) {
+            try {
+                System.out.println("\nAge must be between 14 and 100");
+                int age = readInt("Enter your age: ");
+                if (age >= 14 && age <= 100) {
+                    return age;
+                }
+                System.out.println("❌ Age must be between 14 and 100");
+            } catch (NumberFormatException e) {
+                System.out.println("❌ Please enter a valid number");
+            }
+        }
     }
 
     public String readString(String prompt) {
@@ -32,58 +92,13 @@ public class InputHandler {
         return scanner.nextLine().trim();
     }
 
-    public int readInteger(String prompt, int min, int max) {
+    public String readPhoneNumber() {
         while (true) {
-            try {
-                System.out.print(prompt);
-                int value = Integer.parseInt(scanner.nextLine().trim());
-                if (value >= min && value <= max) {
-                    return value;
-                }
-                System.out.printf("Please enter a number between %d and %d%n", min, max);
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a valid number");
-            }
-        }
-    }
-
-    public Customer readCustomerInfo() {
-        String name = readString("Enter your name: ");
-        while (name.isEmpty()) {
-            System.out.println("Name cannot be empty");
-            name = readString("Enter your name: ");
-        }
-
-        String email = readEmail();
-        String phone = readPhone();
-        String address = readString("Enter your address: ");
-        while (address.isEmpty()) {
-            System.out.println("Address cannot be empty");
-            address = readString("Enter your address: ");
-        }
-
-        int age = readInteger("Enter age: ", 1, 120);
-
-        return new Customer(name, phone, address, age);
-    }
-
-    private String readEmail() {
-        while (true) {
-            String email = readString("Enter your email: ");
-            if (Pattern.matches(EMAIL_REGEX, email)) {
-                return email;
-            }
-            System.out.println("Please enter a valid email address");
-        }
-    }
-
-    private String readPhone() {
-        while (true) {
-            String phone = readString("Enter your phone number (9 digits): ");
-            if (Pattern.matches(PHONE_REGEX, phone)) {
+            String phone = readString("Enter your phone number (9 digits): ").trim();
+            if (phone.matches("\\d{9}")) { 
                 return phone;
             }
-            System.out.println("Please enter a valid 9-digit phone number");
+            System.out.println("❌ Invalid phone number. Must be exactly 9 digits (e.g., 123456789)");
         }
     }
 
@@ -100,31 +115,19 @@ public class InputHandler {
         }
     }
 
-    public boolean validateAge() {
+    public int readInteger(String prompt, int min, int max) {
         while (true) {
             try {
-                String birthDate = readString("Enter your birth date (dd/MM/yyyy): ");
-                LocalDate dob = LocalDate.parse(birthDate, DATE_FORMATTER);
-                LocalDate now = LocalDate.now();
-                int age = Period.between(dob, now).getYears();
-
-                if (age >= MINIMUM_AGE_FOR_BEER) {
-                    return true;
+                System.out.print(prompt);
+                int value = Integer.parseInt(scanner.nextLine().trim());
+                if (value >= min && value <= max) {
+                    return value;
                 }
-                System.out.println("You must be at least 18 years old to order beer");
-                return false;
-            } catch (DateTimeParseException e) {
-                System.out.println("Please enter a valid date in the format dd/MM/yyyy");
+                System.out.printf("Please enter a number between %d and %d\n", min, max);
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid number");
             }
         }
-    }
-
-    public int readQuantity(String item) {
-        return readInteger("Enter quantity for " + item + ": ", 1, 10);
-    }
-
-    public int readMenuChoice() {
-        return readInteger("Enter your choice: ", 0, 9);
     }
 
     public Pizza readPizzaSelection(Delegations delegation) {
@@ -196,51 +199,21 @@ public class InputHandler {
         }
     }
 
-    public Beverage readBeverageChoice(int customerAge) {
-        while (true) {
-            try {
-                menu.displayBeverages();
-                int choice = readInteger("Enter your choice: ", 0, 3);
-
-                switch (choice) {
-                    case 0: return null;
-                    case 1: return Beverage.WATER;
-                    case 2: return Beverage.SODA;
-                    case 3:
-                        if (customerAge < 18) {
-                            System.out.println("Must be 18 or older to order beer");
-                            continue;
-                        }
-                        return Beverage.BEER;
-                    default:
-                        System.out.println("Invalid choice");
-                }
-            } catch (Exception e) {
-                System.out.println("Invalid selection. Please try again.");
-            }
-        }
+    public Beverage readBeverageChoice(Customer customer) {
+        return menu.displayBeverages(customer);
     }
 
-    public static class CustomerInfo {
-        private final String name;
-        private final String email;
-        private final String phone;
-        private final String address;
-        private final int age;
+    public int readQuantity(String item) {
+        return readInteger("Enter quantity for " + item + ": ", 1, 10);
+    }
 
-        public CustomerInfo(String name, String email, String phone, String address, int age) {
-            this.name = name;
-            this.email = email;
-            this.phone = phone;
-            this.address = address;
-            this.age = age;
-        }
+    public int readMenuChoice() {
+        return readInteger("Enter your choice: ", 0, 9);
+    }
 
-        public String getName() { return name; }
-        public String getEmail() { return email; }
-        public String getPhone() { return phone; }
-        public String getAddress() { return address; }
-        public int getAge() { return age; }
+    public int readInt(String prompt) {
+        System.out.print(prompt);
+        return Integer.parseInt(scanner.nextLine().trim());
     }
 
     public void close() {

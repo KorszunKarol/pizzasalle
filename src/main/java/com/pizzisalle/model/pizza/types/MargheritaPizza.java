@@ -7,6 +7,9 @@ public class MargheritaPizza extends Pizza {
 
     public MargheritaPizza() {
         super("Margherita", BASE_PRICE, false);
+        ingredients.add("Tomato sauce");
+        ingredients.add("Mozzarella");
+        ingredients.add("Basil");
     }
 
     @Override

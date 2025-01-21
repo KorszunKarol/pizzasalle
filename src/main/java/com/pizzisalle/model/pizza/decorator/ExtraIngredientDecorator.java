@@ -4,6 +4,7 @@ import com.pizzisalle.model.pizza.base.Pizza;
 import com.pizzisalle.model.pizza.ingredient.Ingredient;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /**
  * PATTERN: Decorator
@@ -11,6 +12,7 @@ import java.util.ArrayList;
  * It allows adding extra ingredients without altering the original pizza structure.
  */
 public class ExtraIngredientDecorator extends PizzaDecorator {
+    private static final Logger logger = Logger.getLogger("PizziSalle");
     private final Ingredient extraIngredient;
 
     public ExtraIngredientDecorator(Pizza pizza, Ingredient extraIngredient) {
@@ -20,7 +22,16 @@ public class ExtraIngredientDecorator extends PizzaDecorator {
 
     @Override
     public double calculatePrice() {
-        return super.calculatePrice() + (extraIngredient.getPriceInCents() / 100.0);
+        double basePrice = super.calculatePrice();
+        double extraPrice = extraIngredient.getPriceInCents() / 100.0;
+
+        logger.info(String.format("Adding extra ingredient %s: base=€%.2f, extra=€%.2f, total=€%.2f",
+            extraIngredient.getName(),
+            basePrice,
+            extraPrice,
+            basePrice + extraPrice));
+
+        return basePrice + extraPrice;
     }
 
     @Override

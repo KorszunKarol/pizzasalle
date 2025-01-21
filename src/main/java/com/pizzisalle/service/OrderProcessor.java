@@ -14,147 +14,94 @@ import com.pizzisalle.model.pizza.decorator.IngredientQuantityDecorator;
 import com.pizzisalle.model.pizza.ingredient.IngredientQuantity;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
+import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+import java.io.IOException;
 
 public class OrderProcessor {
+    private static final Logger logger = Logger.getLogger("PizziSalle");
     private final InputHandler inputHandler;
     private final Menu menu;
 
+    static {
+        try {
+            FileHandler fh = new FileHandler("pizzisalle.log", true);
+            fh.setFormatter(new SimpleFormatter());
+            logger.addHandler(fh);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public OrderProcessor() {
-        this.inputHandler = new InputHandler();
-        this.menu = new Menu();
+        this.inputHandler = InputHandler.createInputHandler();
+        this.menu = inputHandler.getMenu();
     }
 
     public void processOrder(Order order) {
-        double totalPrice = order.calculateTotal();
-
         while (true) {
-            Menu.displayOrderSummary(generateOrderSummary(order, totalPrice));
+            String orderSummary = generateOrderSummary(order);
+            Menu.displayOrderSummary(orderSummary);
             int choice = inputHandler.readMenuChoice();
 
             switch (choice) {
                 case 1:
-                    System.out.println("Order confirmed!");
+                    DatabaseManager.getInstance().saveOrder(order);
+                    DatabaseManager.getInstance().updateCustomerFirstOrder(order.getCustomer().getPhone());
+                    Menu.displaySuccess("Order confirmed! Thank you for choosing PizziSalle!");
                     return;
                 case 2:
-                    boolean modified = false;
-                    while (!modified) {
-                        System.out.println("\nWhat would you like to modify?");
-                        System.out.println("1. Add pizza");
-                        System.out.println("2. Remove pizza");
-                        System.out.println("3. Modify pizza");
-                        System.out.println("0. Back to order summary");
-
-                        int modifyChoice = inputHandler.readMenuChoice();
-                        List<Pizza> pizzas = order.getPizzas();
-
-                        switch (modifyChoice) {
-                            case 1:
-                                menu.displayPizzaMenu(order.getCustomer().getDelegation());
-                                Pizza newPizza = inputHandler.readPizzaSelection(order.getCustomer().getDelegation());
-
-                                if (newPizza != null) {
-                                    newPizza = handlePizzaCustomization(newPizza);
-
-                                    menu.displayCrustTypes();
-                                    int crustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
-                                    CrustType selectedCrust = switch (crustChoice) {
-                                        case 1 -> CrustType.ORIGINAL;
-                                        case 2 -> CrustType.THIN;
-                                        case 3 -> CrustType.SICILIAN;
-                                        default -> CrustType.ORIGINAL;
-                                    };
-                                    newPizza.setCrustType(selectedCrust);
-
-                                    menu.displayBeverages();
-                                    Beverage newBeverage = inputHandler.readBeverageChoice(order.getCustomer().getAge());
-                                    if (newBeverage != null) {
-                                        newPizza.setBeverage(newBeverage);
-                                    }
-
-                                    order.addPizza(newPizza);
-                                    totalPrice = order.calculateTotal();
-                                    modified = true;
-                                }
-                                break;
-                            case 2:
-                                if (pizzas.size() > 1) {
-                                    System.out.println("\nCurrent pizzas:");
-                                    for (int i = 0; i < pizzas.size(); i++) {
-                                        System.out.printf("%d. %s\n", i + 1, pizzas.get(i).getName());
-                                    }
-                                    int pizzaToRemove = inputHandler.readInteger("Select pizza to remove: ", 1, pizzas.size()) - 1;
-                                    order.removePizza(pizzaToRemove);
-                                    totalPrice = order.calculateTotal();
-                                    modified = true;
-                                    System.out.println("✓ Pizza removed successfully");
-                                } else {
-                                    System.out.println("❌ Cannot remove pizza - order must contain at least one pizza");
-                                }
-                                break;
-                            case 3:
-                                System.out.println("\nSelect pizza to modify:");
-                                for (int i = 0; i < pizzas.size(); i++) {
-                                    Pizza p = pizzas.get(i);
-                                    System.out.printf("%d. %s (Crust: %s, Beverage: %s)\n",
-                                        i + 1, p.getName(), p.getCrustType(),
-                                        p.getBeverage() != null ? p.getBeverage() : "None");
-                                }
-                                int pizzaIndex = inputHandler.readInteger("Select pizza: ", 1, pizzas.size()) - 1;
-                                Pizza selectedPizza = pizzas.get(pizzaIndex);
-
-                                System.out.println("\nWhat would you like to modify?");
-                                System.out.println("1. Customize ingredients");
-                                System.out.println("2. Change crust type");
-                                System.out.println("3. Change beverage");
-                                System.out.println("0. Back");
-
-                                int modifyPizzaChoice = inputHandler.readMenuChoice();
-                                switch (modifyPizzaChoice) {
-                                    case 1:
-                                        Pizza modifiedPizza = handlePizzaCustomization(selectedPizza);
-                                        pizzas.set(pizzaIndex, modifiedPizza);
-                                        modified = true;
-                                        break;
-                                    case 2:
-                                        menu.displayCrustTypes();
-                                        int newCrustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
-                                        CrustType newCrust = switch (newCrustChoice) {
-                                            case 1 -> CrustType.ORIGINAL;
-                                            case 2 -> CrustType.THIN;
-                                            case 3 -> CrustType.SICILIAN;
-                                            default -> CrustType.ORIGINAL;
-                                        };
-                                        selectedPizza.setCrustType(newCrust);
-                                        modified = true;
-                                        break;
-                                    case 3:
-                                        menu.displayBeverages();
-                                        Beverage newBeverage = inputHandler.readBeverageChoice(order.getCustomer().getAge());
-                                        selectedPizza.setBeverage(newBeverage);
-                                        modified = true;
-                                        break;
-                                    case 0:
-                                        break;
-                                    default:
-                                        System.out.println("Invalid choice");
-                                }
-                                if (modified) {
-                                    totalPrice = order.calculateTotal();
-                                }
-                                break;
-                            case 0:
-                                modified = true;
-                                break;
-                            default:
-                                System.out.println("Invalid choice");
-                        }
-                    }
+                    modifyOrder(order);
                     break;
                 case 0:
-                    System.out.println("Order cancelled");
+                    Menu.displaySuccess("Order cancelled.");
                     return;
                 default:
-                    System.out.println("Invalid choice");
+                    Menu.displayError("Invalid choice");
+            }
+        }
+    }
+
+    private void modifyOrder(Order order) {
+        while (true) {
+            displayModifyOrderMenu();
+            int choice = inputHandler.readMenuChoice();
+
+            switch (choice) {
+                case 1:
+                    menu.displayPizzaMenu(order.getCustomer().getDelegation());
+                    int pizzaChoice = inputHandler.readPizzaSelection(menu.getAvailablePizzas(order.getCustomer().getDelegation()).size());
+                    Pizza newPizza = menu.getAvailablePizzas(order.getCustomer().getDelegation()).get(pizzaChoice - 1);
+                    newPizza = handlePizzaCustomization(newPizza);
+                    menu.displayCrustTypes();
+                    int crustChoice = inputHandler.readMenuChoice();
+                    newPizza.setCrustType(CrustType.values()[crustChoice - 1]);
+                    Beverage beverage = inputHandler.readBeverageChoice(order.getCustomer());
+                    if (beverage != null) {
+                        newPizza.setBeverage(beverage);
+                    }
+                    order.addPizza(newPizza);
+                    Menu.displaySuccess("Pizza added to order");
+                    return;
+                case 2:
+                    if (order.getPizzas().isEmpty()) {
+                        Menu.displayError("No pizzas in order");
+                        return;
+                    }
+                    displayPizzaList(order);
+                    int removeChoice = inputHandler.readMenuChoice();
+                    if (removeChoice > 0 && removeChoice <= order.getPizzas().size()) {
+                        order.removePizza(removeChoice - 1);
+                        Menu.displaySuccess("Pizza removed from order");
+                    } else {
+                        Menu.displayError("Invalid pizza number");
+                    }
+                    return;
+                case 0:
+                    return;
+                default:
+                    Menu.displayError("Invalid choice");
             }
         }
     }
@@ -165,57 +112,65 @@ public class OrderProcessor {
         }
     }
 
-    private String generateOrderSummary(Order order, double totalPrice) {
+    private String generateOrderSummary(Order order) {
         StringBuilder summary = new StringBuilder();
         summary.append("Customer: ").append(order.getCustomer().getName()).append("\n");
         summary.append("Delegation: ").append(order.getCustomer().getDelegation().getName()).append("\n\n");
 
-        summary.append("Pizzas:\n");
-        for (Pizza pizza : order.getPizzas()) {
-            summary.append("- ").append(pizza.getName())
-                   .append(" (€").append(String.format("%.2f", pizza.getBasePrice())).append(")\n");
+        logger.info("Generating order summary for customer: " + order.getCustomer().getName());
 
-            List<String> additionalIngredients = pizza.getAdditionalIngredients();
-            if (additionalIngredients.isEmpty()) {
-                summary.append("  Classic pizza with tomato sauce and cheese\n");
-            } else {
-                summary.append("  Base: Tomato sauce, Cheese\n");
-                summary.append("  Additional Ingredients: ").append(String.join(", ", additionalIngredients)).append("\n");
+        double totalPrice = 0.0;
+        for (Pizza pizza : order.getPizzas()) {
+            logger.info("Pizza: " + pizza.getName() + " Base price: €" + pizza.getBasePrice());
+
+            summary.append("Pizza: ").append(pizza.getName()).append("\n");
+            summary.append("Base price: ").append(pizza.getFormattedPrice()).append("\n");
+
+            List<String> ingredients = pizza.getIngredients();
+            summary.append("Ingredients: ").append(String.join(", ", ingredients)).append("\n");
+
+            if (!pizza.getExtraIngredients().isEmpty()) {
+                logger.info("Extra ingredients for " + pizza.getName() + ": " + pizza.getExtraIngredients());
+                summary.append("Extra ingredients: ").append(String.join(", ", pizza.getExtraIngredients())).append("\n");
             }
 
             Map<String, Integer> quantities = pizza.getIngredientQuantities();
-            List<String> extras = pizza.getExtraIngredients();
-            if (!extras.isEmpty() || !quantities.isEmpty()) {
-                summary.append("  Extra ingredients:\n");
-                for (String extra : extras) {
-                    Ingredient ingredient = IngredientFactory.getInstance().getIngredient(extra.split(" \\(x")[0]);
-                    int quantity = quantities.getOrDefault(ingredient.getName(), 1);
-                    double price;
-                    if (quantity > 1) {
-                        price = ((quantity - 1) * ingredient.getPriceInCents()) / 100.0;
-                        summary.append("    + ").append(ingredient.getName())
-                               .append(" (x").append(quantity).append(")")
-                               .append(" (+€").append(String.format("%.2f", price)).append(")\n");
-                    } else {
-                        price = ingredient.getPriceInCents() / 100.0;
-                        summary.append("    + ").append(extra)
-                               .append(" (+€").append(String.format("%.2f", price)).append(")\n");
-                    }
+            if (!quantities.isEmpty()) {
+                logger.info("Ingredient quantities for " + pizza.getName() + ": " + quantities);
+                for (Map.Entry<String, Integer> entry : quantities.entrySet()) {
+                    summary.append("- ").append(entry.getKey())
+                           .append(" x").append(entry.getValue()).append("\n");
                 }
             }
 
+            double extrasPrice = pizza.getExtrasPrice();
+            logger.info("Extras price for " + pizza.getName() + ": €" + extrasPrice);
+            if (extrasPrice > 0) {
+                summary.append("Extras price: €").append(String.format("%.2f", extrasPrice)).append("\n");
+            }
+
             if (pizza.getCrustType() != CrustType.ORIGINAL) {
-                summary.append("  Crust: ").append(pizza.getCrustType())
-                       .append(" (+€").append(String.format("%.2f", pizza.getCrustPrice())).append(")\n");
+                double crustPrice = pizza.getCrustPrice();
+                logger.info("Crust price for " + pizza.getName() + ": €" + crustPrice);
+                summary.append("Crust type: ").append(pizza.getCrustType())
+                       .append(" (+€").append(String.format("%.2f", crustPrice)).append(")\n");
             }
 
             if (pizza.getBeverage() != null) {
-                summary.append("  Beverage: ").append(pizza.getBeverage())
-                       .append(" (€").append(String.format("%.2f", pizza.getBeveragePrice())).append(")\n");
+                double beveragePrice = pizza.getBeveragePrice();
+                logger.info("Beverage price for " + pizza.getName() + ": €" + beveragePrice);
+                summary.append("Beverage: ").append(pizza.getBeverage())
+                       .append(" (€").append(String.format("%.2f", beveragePrice)).append(")\n");
             }
-            summary.append("\n");
+
+            double pizzaTotal = pizza.calculatePrice() + pizza.getCrustPrice() + pizza.getBeveragePrice();
+            logger.info("Total for pizza " + pizza.getName() + ": €" + pizzaTotal);
+            summary.append("Pizza total: €").append(String.format("%.2f", pizzaTotal)).append("\n\n");
+
+            totalPrice += pizzaTotal;
         }
 
+        logger.info("Order total price: €" + totalPrice);
         summary.append("Total: €").append(String.format("%.2f", totalPrice));
         return summary.toString();
     }
@@ -266,5 +221,19 @@ public class OrderProcessor {
 
     private void saveOrder(Order order) {
         System.out.println("Order saved successfully!");
+    }
+
+    private void displayModifyOrderMenu() {
+        System.out.println("\nWhat would you like to modify?");
+        System.out.println("1. Add pizza");
+        System.out.println("2. Remove pizza");
+        System.out.println("0. Back to order summary");
+    }
+
+    private void displayPizzaList(Order order) {
+        System.out.println("\nCurrent pizzas:");
+        for (int i = 0; i < order.getPizzas().size(); i++) {
+            System.out.printf("%d. %s\n", i + 1, order.getPizzas().get(i).getName());
+        }
     }
 }

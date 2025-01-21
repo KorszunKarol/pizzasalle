@@ -5,14 +5,15 @@ import com.pizzisalle.model.pizza.ingredient.IngredientQuantity;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.logging.Logger;
 import java.util.ArrayList;
-
 /**
  * PATTERN: Decorator
  * This class implements the Decorator pattern to modify the quantity of existing ingredients.
  * It allows increasing the amount of an ingredient that's already on the pizza.
  */
 public class IngredientQuantityDecorator extends PizzaDecorator {
+    private static final Logger logger = Logger.getLogger("PizziSalle");
     private final IngredientQuantity ingredientQuantity;
 
     public IngredientQuantityDecorator(Pizza pizza, IngredientQuantity ingredientQuantity) {
@@ -25,6 +26,13 @@ public class IngredientQuantityDecorator extends PizzaDecorator {
         double basePrice = super.calculatePrice();
         double additionalQuantityPrice = (ingredientQuantity.getQuantity() - 1) *
                                        (ingredientQuantity.getIngredient().getPriceInCents() / 100.0);
+
+        logger.info(String.format("Calculating price for %s: quantity=%d, pricePerUnit=€%.2f, additionalPrice=€%.2f",
+            ingredientQuantity.getIngredient().getName(),
+            ingredientQuantity.getQuantity(),
+            ingredientQuantity.getIngredient().getPriceInCents() / 100.0,
+            additionalQuantityPrice));
+
         return basePrice + additionalQuantityPrice;
     }
 

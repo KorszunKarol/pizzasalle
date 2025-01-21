@@ -14,6 +14,7 @@ import com.pizzisalle.service.InputHandler;
 import com.pizzisalle.service.Menu;
 import com.pizzisalle.service.OrderProcessor;
 import com.pizzisalle.model.pizza.ingredient.IngredientQuantity;
+import com.pizzisalle.service.DatabaseManager;
 
 public class Main {
     private final Menu menu;
@@ -21,89 +22,52 @@ public class Main {
     private final OrderProcessor orderProcessor;
 
     public Main() {
-        this.menu = new Menu();
-        this.inputHandler = new InputHandler();
+        this.inputHandler = InputHandler.createInputHandler();
+        this.menu = inputHandler.getMenu();
         this.orderProcessor = new OrderProcessor();
     }
 
     public void start() {
-        while (true) {
-            Menu.clearScreen();
-            menu.displayMainMenu();
+        try {
+            System.out.println("\n=== Welcome to PizziSalle ===");
+            System.out.println("1. Existing Customer");
+            System.out.println("2. New Customer");
+            System.out.println("0. Exit");
+
             int choice = inputHandler.readMenuChoice();
+            Customer customer;
 
             switch (choice) {
                 case 1:
-                    Menu.clearScreen();
-                    processNewOrder();
+                    String phone = inputHandler.readPhoneNumber();
+                    customer = DatabaseManager.getInstance().findCustomerByPhone(phone);
+                    if (customer == null) {
+                        System.out.println("Customer not found. Please register as a new customer.");
+                        customer = inputHandler.readCustomerInfo();
+                    } else {
+                        System.out.println("Welcome back, " + customer.getName() + "!");
+                    }
+                    break;
+                case 2:
+                    customer = inputHandler.readCustomerInfo();
                     break;
                 case 0:
-                    Menu.clearScreen();
                     return;
                 default:
                     System.out.println("Invalid choice");
-            }
-        }
-    }
-
-    private void processNewOrder() {
-        Customer customer = inputHandler.readCustomerInfo();
-        OrderBuilder orderBuilder = new OrderBuilder(customer);
-
-        Menu.clearScreen();
-        System.out.println("\nWelcome to PizziSalle! Your order will be handled by our " +
-                          customer.getDelegation().getName() + " delegation.\n");
-
-        int pizzaCount = 0;
-        menu.displayPizzaMenu(customer.getDelegation());
-
-        while (pizzaCount < 10) {
-            Pizza pizza = inputHandler.readPizzaSelection(customer.getDelegation());
-            if (pizza == null) break;
-
-            pizza = handlePizzaCustomization(pizza);
-
-            menu.displayCrustTypes();
-            int crustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
-            CrustType selectedCrust = switch (crustChoice) {
-                case 1 -> CrustType.ORIGINAL;
-                case 2 -> CrustType.THIN;
-                case 3 -> CrustType.SICILIAN;
-                default -> CrustType.ORIGINAL;
-            };
-            pizza.setCrustType(selectedCrust);
-
-            menu.displayBeverages();
-            Beverage beverage = inputHandler.readBeverageChoice(customer.getAge());
-            if (beverage != null) {
-                pizza.setBeverage(beverage);
+                    return;
             }
 
-            orderBuilder.addPizza(pizza);
-            pizzaCount++;
-
-            if (pizzaCount == 10) {
-                System.out.println("Maximum pizza limit reached (10).");
-                break;
-            }
-
-            System.out.println("\nCurrent order has " + pizzaCount + " pizza(s)");
-            if (!readYesNoInput("Would you like to add another pizza?")) break;
-            menu.displayPizzaMenu(customer.getDelegation());
+            System.out.println("You have been assigned to " + customer.getDelegation().getName());
+            processOrder(customer);
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
         }
-
-        if (pizzaCount == 0) {
-            System.out.println("You must add at least one pizza to your order.");
-            return;
-        }
-
-        Order order = orderBuilder.build();
-        orderProcessor.processOrder(order);
     }
 
     private boolean readYesNoInput(String prompt) {
         while (true) {
-            String input = inputHandler.readString(prompt + " (y/n): ").toLowerCase();
+            String input = inputHandler.readString(prompt).toLowerCase();
             if (input.equals("y")) return true;
             if (input.equals("n")) return false;
             System.out.println("Please enter 'y' for yes or 'n' for no");
@@ -154,14 +118,52 @@ public class Main {
         return pizza;
     }
 
-    public static void main(String[] args) {
-        Main app = new Main();
+    private void processOrder(Customer customer) {
         try {
-            app.start();
+            OrderBuilder orderBuilder = new OrderBuilder(customer);
+            int pizzaCount = 0;
+
+            while (true) {
+                if (pizzaCount == 10) {
+                    System.out.println("Maximum pizza limit reached (10).");
+                    break;
+                }
+
+                System.out.println("\nCurrent order has " + pizzaCount + " pizza(s)");
+                if (!readYesNoInput("Would you like to add another pizza?")) break;
+                menu.displayPizzaMenu(customer.getDelegation());
+
+                int choice = inputHandler.readPizzaSelection(menu.getAvailablePizzas(customer.getDelegation()).size());
+                Pizza pizza = menu.getAvailablePizzas(customer.getDelegation()).get(choice - 1);
+                pizza = handlePizzaCustomization(pizza);
+
+                menu.displayCrustTypes();
+                int crustChoice = inputHandler.readMenuChoice();
+                pizza.setCrustType(CrustType.values()[crustChoice - 1]);
+
+                Beverage beverage = inputHandler.readBeverageChoice(customer);
+                if (beverage != null) {
+                    pizza.setBeverage(beverage);
+                }
+
+                orderBuilder.addPizza(pizza);
+                pizzaCount++;
+            }
+
+            if (pizzaCount == 0) {
+                System.out.println("You must add at least one pizza to your order.");
+                return;
+            }
+
+            Order order = orderBuilder.build();
+            orderProcessor.processOrder(order);
         } catch (Exception e) {
             System.out.println("An error occurred: " + e.getMessage());
-        } finally {
-            app.inputHandler.close();
         }
+    }
+
+    public static void main(String[] args) {
+        Main pizziSalle = new Main();
+        pizziSalle.start();
     }
 }

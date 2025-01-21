@@ -35,7 +35,7 @@ public class Order {
     }
 
     public List<Pizza> getPizzas() {
-        return new ArrayList<>(pizzas);
+        return pizzas;
     }
 
     public void setPizzas(List<Pizza> pizzas) {

@@ -36,107 +36,119 @@ public class OrderProcessor {
                     System.out.println("Order confirmed!");
                     return;
                 case 2:
-                    System.out.println("\nWhat would you like to modify?");
-                    System.out.println("1. Add pizza");
-                    System.out.println("2. Remove pizza");
-                    System.out.println("3. Modify pizza");
-                    System.out.println("0. Back to order summary");
+                    boolean modified = false;
+                    while (!modified) {
+                        System.out.println("\nWhat would you like to modify?");
+                        System.out.println("1. Add pizza");
+                        System.out.println("2. Remove pizza");
+                        System.out.println("3. Modify pizza");
+                        System.out.println("0. Back to order summary");
 
-                    int modifyChoice = inputHandler.readMenuChoice();
-                    switch (modifyChoice) {
-                        case 1:
-                            menu.displayPizzaMenu(order.getCustomer().getDelegation());
-                            Pizza newPizza = inputHandler.readPizzaSelection(order.getCustomer().getDelegation());
+                        int modifyChoice = inputHandler.readMenuChoice();
+                        List<Pizza> pizzas = order.getPizzas();
 
-                            if (newPizza != null) {
-                                newPizza = handlePizzaCustomization(newPizza);
+                        switch (modifyChoice) {
+                            case 1:
+                                menu.displayPizzaMenu(order.getCustomer().getDelegation());
+                                Pizza newPizza = inputHandler.readPizzaSelection(order.getCustomer().getDelegation());
 
-                                menu.displayCrustTypes();
-                                int crustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
-                                CrustType selectedCrust = switch (crustChoice) {
-                                    case 1 -> CrustType.ORIGINAL;
-                                    case 2 -> CrustType.THIN;
-                                    case 3 -> CrustType.SICILIAN;
-                                    default -> CrustType.ORIGINAL;
-                                };
-                                newPizza.setCrustType(selectedCrust);
+                                if (newPizza != null) {
+                                    newPizza = handlePizzaCustomization(newPizza);
 
-                                menu.displayBeverages();
-                                Beverage newBeverage = inputHandler.readBeverageChoice(order.getCustomer().getAge());
-                                if (newBeverage != null) {
-                                    newPizza.setBeverage(newBeverage);
-                                }
-
-                                order.addPizza(newPizza);
-                                totalPrice = order.calculateTotal();
-                            }
-                            break;
-                        case 2:
-                            if (order.getPizzas().size() > 1) {
-                                System.out.println("\nCurrent pizzas:");
-                                for (int i = 0; i < order.getPizzas().size(); i++) {
-                                    System.out.printf("%d. %s\n", i + 1, order.getPizzas().get(i).getName());
-                                }
-                                int pizzaToRemove = inputHandler.readInteger("Select pizza to remove: ", 1, order.getPizzas().size()) - 1;
-                                order.removePizza(pizzaToRemove);
-                                totalPrice = order.calculateTotal();
-                            } else {
-                                System.out.println("Cannot remove pizza - order must contain at least one pizza");
-                            }
-                            break;
-                        case 3:
-                            System.out.println("\nSelect pizza to modify:");
-                            List<Pizza> pizzas = order.getPizzas();
-                            for (int i = 0; i < pizzas.size(); i++) {
-                                Pizza p = pizzas.get(i);
-                                System.out.printf("%d. %s (Crust: %s, Beverage: %s)\n",
-                                    i + 1, p.getName(), p.getCrustType(),
-                                    p.getBeverage() != null ? p.getBeverage() : "None");
-                            }
-                            int pizzaIndex = inputHandler.readInteger("Select pizza: ", 1, pizzas.size()) - 1;
-                            Pizza selectedPizza = pizzas.get(pizzaIndex);
-
-                            System.out.println("\nWhat would you like to modify?");
-                            System.out.println("1. Customize ingredients");
-                            System.out.println("2. Change crust type");
-                            System.out.println("3. Change beverage");
-                            System.out.println("0. Back");
-
-                            int modifyPizzaChoice = inputHandler.readMenuChoice();
-                            switch (modifyPizzaChoice) {
-                                case 1:
-                                    Pizza modifiedPizza = handlePizzaCustomization(selectedPizza);
-                                    pizzas.set(pizzaIndex, modifiedPizza);
-                                    break;
-                                case 2:
                                     menu.displayCrustTypes();
-                                    int newCrustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
-                                    CrustType newCrust = switch (newCrustChoice) {
+                                    int crustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
+                                    CrustType selectedCrust = switch (crustChoice) {
                                         case 1 -> CrustType.ORIGINAL;
                                         case 2 -> CrustType.THIN;
                                         case 3 -> CrustType.SICILIAN;
                                         default -> CrustType.ORIGINAL;
                                     };
-                                    selectedPizza.setCrustType(newCrust);
-                                    break;
-                                case 3:
+                                    newPizza.setCrustType(selectedCrust);
+
                                     menu.displayBeverages();
                                     Beverage newBeverage = inputHandler.readBeverageChoice(order.getCustomer().getAge());
-                                    selectedPizza.setBeverage(newBeverage);
-                                    break;
-                                case 0:
-                                    break;
-                                default:
-                                    System.out.println("Invalid choice");
-                            }
-                            totalPrice = order.calculateTotal();
-                            break;
-                        case 0:
-                            break;
-                        default:
-                            System.out.println("Invalid choice");
+                                    if (newBeverage != null) {
+                                        newPizza.setBeverage(newBeverage);
+                                    }
+
+                                    order.addPizza(newPizza);
+                                    totalPrice = order.calculateTotal();
+                                    modified = true;
+                                }
+                                break;
+                            case 2:
+                                if (pizzas.size() > 1) {
+                                    System.out.println("\nCurrent pizzas:");
+                                    for (int i = 0; i < pizzas.size(); i++) {
+                                        System.out.printf("%d. %s\n", i + 1, pizzas.get(i).getName());
+                                    }
+                                    int pizzaToRemove = inputHandler.readInteger("Select pizza to remove: ", 1, pizzas.size()) - 1;
+                                    order.removePizza(pizzaToRemove);
+                                    totalPrice = order.calculateTotal();
+                                    modified = true;
+                                    System.out.println("✓ Pizza removed successfully");
+                                } else {
+                                    System.out.println("❌ Cannot remove pizza - order must contain at least one pizza");
+                                }
+                                break;
+                            case 3:
+                                System.out.println("\nSelect pizza to modify:");
+                                for (int i = 0; i < pizzas.size(); i++) {
+                                    Pizza p = pizzas.get(i);
+                                    System.out.printf("%d. %s (Crust: %s, Beverage: %s)\n",
+                                        i + 1, p.getName(), p.getCrustType(),
+                                        p.getBeverage() != null ? p.getBeverage() : "None");
+                                }
+                                int pizzaIndex = inputHandler.readInteger("Select pizza: ", 1, pizzas.size()) - 1;
+                                Pizza selectedPizza = pizzas.get(pizzaIndex);
+
+                                System.out.println("\nWhat would you like to modify?");
+                                System.out.println("1. Customize ingredients");
+                                System.out.println("2. Change crust type");
+                                System.out.println("3. Change beverage");
+                                System.out.println("0. Back");
+
+                                int modifyPizzaChoice = inputHandler.readMenuChoice();
+                                switch (modifyPizzaChoice) {
+                                    case 1:
+                                        Pizza modifiedPizza = handlePizzaCustomization(selectedPizza);
+                                        pizzas.set(pizzaIndex, modifiedPizza);
+                                        modified = true;
+                                        break;
+                                    case 2:
+                                        menu.displayCrustTypes();
+                                        int newCrustChoice = inputHandler.readInteger("Select crust type: ", 1, 3);
+                                        CrustType newCrust = switch (newCrustChoice) {
+                                            case 1 -> CrustType.ORIGINAL;
+                                            case 2 -> CrustType.THIN;
+                                            case 3 -> CrustType.SICILIAN;
+                                            default -> CrustType.ORIGINAL;
+                                        };
+                                        selectedPizza.setCrustType(newCrust);
+                                        modified = true;
+                                        break;
+                                    case 3:
+                                        menu.displayBeverages();
+                                        Beverage newBeverage = inputHandler.readBeverageChoice(order.getCustomer().getAge());
+                                        selectedPizza.setBeverage(newBeverage);
+                                        modified = true;
+                                        break;
+                                    case 0:
+                                        break;
+                                    default:
+                                        System.out.println("Invalid choice");
+                                }
+                                if (modified) {
+                                    totalPrice = order.calculateTotal();
+                                }
+                                break;
+                            case 0:
+                                modified = true;
+                                break;
+                            default:
+                                System.out.println("Invalid choice");
+                        }
                     }
-                    if (modifyChoice == 0) break;
                     break;
                 case 0:
                     System.out.println("Order cancelled");
